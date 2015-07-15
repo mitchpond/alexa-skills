@@ -1,0 +1,24 @@
+{
+    "intents": [{
+        "intent": "ListMyDevicesIntent",
+        "slots": []
+    }, {
+        "intent": "ChangeThingStateIntent",
+        "slots": [{
+            "name": "Device",
+            "type": "LITERAL"
+        }, {
+            "name": "State",
+            "type": "LITERAL"
+        }]
+    }, {
+        "intent": "HelloBridgetIntent",
+        "slots": []
+    }, {
+        "intent": "GetThingStateIntent",
+        "slots": [{
+            "name": "Device",
+            "type": "LITERAL"
+        }]
+    }]
+}

@@ -1,0 +1,45 @@
+ListMyDevicesIntent list my devices
+ListMyDevicesIntent which devices
+ListMyDevicesIntent what devices can you see
+ListMyDevicesIntent what devices I can control
+ListMyDevicesIntent about my devices
+
+ChangeThingStateIntent set {Kitchen Fan Lights|Device} to {off|State}
+ChangeThingStateIntent set the {Kitchen Fan Lights|Device} to {off|State}
+ChangeThingStateIntent turn {Table Lamp|Device} {on|State}
+ChangeThingStateIntent turn the {Table Lamp|Device} {on|State}
+ChangeThingStateIntent turn the {Lights|Device} {off|State}
+ChangeThingStateIntent turn {Table Lamp|Device} {off|State}
+ChangeThingStateIntent turn {Lamp|Device} {off|State}
+ChangeThingStateIntent turn {Lamp|Device} {on|State}
+ChangeThingStateIntent turn {on|State} {Lamp|Device}
+ChangeThingStateIntent turn {off|State} {Lamp|Device}
+ChangeThingStateIntent turn {off|State} the {Lamp|Device}
+
+GetThingStateIntent is {Kitchen Fan Lights|Device} on
+GetThingStateIntent are the {Kitchen Fan Lights|Device} on
+GetThingStateIntent are the {Living Room Lights|Device} off
+GetThingStateIntent is the {Bedroom Ceiling Light|Device} on
+GetThingStateIntent is the {Lamp|Device} off
+GetThingStateIntent is the {Lamp|Device} 
+GetThingStateIntent if {Bedroom Ceiling Light|Device} is on
+GetThingStateIntent if {Living Room Shelf Lamp|Device} is on
+GetThingStateIntent is {Lamp|Device} off
+GetThingStateIntent if I left the {Kitchen Fan Lights|Device} on
+GetThingStateIntent if I left the {Front Door|Device} open
+GetThingStateIntent if I closed the {Back Door|Device}
+GetThingStateIntent did I leave {Bookshelf Light|Device} on
+GetThingStateIntent did I leave the {Kitchen Fan Lights|Device} on
+GetThingStateIntent did I turn off {Bedroom Dresser Lamp|Device}
+GetThingStateIntent did I turn off the {Bedroom Dresser Lamp|Device}
+GetThingStateIntent check {Kitchen Fan Lights|Device}
+GetThingStateIntent check the {Kitchen Fan Lights|Device}
+GetThingStateIntent did I leave the {Back Door|Device} open
+GetThingStateIntent did I close the {Front Door|Device}
+GetThingStateIntent is the {Garage Door|Device} open
+GetThingStateIntent is the {Garage Door|Device} closed
+GetThingStateIntent if the {Front Door|Device} is open
+GetThingStateIntent is the {Back Door|Device} open
+GetThingStateIntent is the {Back Door|Device} closed
+
+HelloBridgetIntent say hello to Bridget
