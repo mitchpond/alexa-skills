@@ -41,7 +41,7 @@ exports.handler = function(event, context) {
                 });
         }
         else if (event.request.type === "IntentRequest") {
-            console.log("Called Lambda function with intent: "+event.request.intent.name);
+            console.log("Called Lambda function with intent: " + event.request.intent.name);
             onIntent(event.request,
                 event.session,
                 function callback(sessionAttributes, speechletResponse) {
@@ -72,7 +72,7 @@ function onLaunch(launchRequest, session, callback) {
     console.log("onLaunch requestId=" + launchRequest.requestId + ", sessionId=" + session.sessionId);
 
     // Dispatch to your skill's launch.
-    getWelcomeResponse(callback);
+    listSTDevices(callback);
 }
 
 /**
@@ -89,7 +89,7 @@ function onIntent(intentRequest, session, callback) {
         setSTDeviceState(intent, session, callback);
     }
     else if ("ListMyDevicesIntent" === intentName) {
-        getWelcomeResponse(callback);
+        listSTDevices(callback);
     }
     else if ("HelloBridgetIntent" === intentName) {
         helloBridgetResponse(callback);
@@ -113,11 +113,13 @@ function onSessionEnded(sessionEndedRequest, session) {
 
 // --------------- Functions that control the skill's behavior -----------------------
 
-function getWelcomeResponse(callback) {
+function listSTDevices(callback) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var sessionAttributes = {};
     var cardTitle = "Discovered SmartThings Devices";
     var speechOutput = "";
+    var repromptText = "";
+    var shouldEndSession = true;
 
     var optionsget = {
         host: API_HOST,
@@ -143,13 +145,10 @@ function getWelcomeResponse(callback) {
     req.on('error', function(e) {
         console.error(e);
     });
-    //console.log("Trying REST Endpoint request...");
-    //http.get("https://graph.api.smartthings.com/api/smartapps/installations/0fbdeadf-2cc9-4cec-8310-251404d31358/getSwitches?access_token=5be2014a-1bf8-4339-978b-48ee223eef5f", function(res){console.log("Got response: "+res.statusCode);});
 
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.
-    var repromptText = "";
-    var shouldEndSession = true;
+    
 
     //callback(sessionAttributes,
     //         buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
@@ -167,24 +166,15 @@ function setSTDeviceState(intent, session, callback) {
 
     speechOutput = "Once implemented, I will be able to control your SmartThings devices. This is a work in progress!";
 
-    /*if (favoriteColorSlot) {
-        favoriteColor = favoriteColorSlot.value;
-        sessionAttributes = createFavoriteColorAttributes(favoriteColor);
-        speechOutput = "I now know your favorite color is " + favoriteColor + ". You can ask me "
-                + "your favorite color by saying, what's my favorite color?";
-        repromptText = "You can ask me your favorite color by saying, what's my favorite color?";
-    } else {
-        speechOutput = "I'm not sure what your favorite color is, please try again";
-        repromptText = "I'm not sure what your favorite color is, you can tell me your "
-                + "favorite color by saying, my favorite color is red";
-    }*/
-
     callback(sessionAttributes,
         buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
 
+/* Using to test communication with Lambda. If this one works while the others don't, 
+then there's probably an issue with the other intents */
 function helloBridgetResponse(callback) {
-    var speechOutput = "Hello Bridget! How are you today?";
+    var girlfriend = "Bridget";
+    var speechOutput = "Hello "+girlfriend+"! How are you today?";
     var repromptText = "I'm glad to hear that!";
     var shouldEndSession = true;
 
