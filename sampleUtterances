@@ -22,6 +22,8 @@ GetThingStateIntent are the {Living Room Lights|Device} off
 GetThingStateIntent is the {Bedroom Ceiling Light|Device} on
 GetThingStateIntent is the {Lamp|Device} off
 GetThingStateIntent is the {Lamp|Device} 
+GetThingStateIntent is the {Upstairs Hallway Ceiling Light|Device} turned on
+GetThingStateIntent is the {Entryway Baseboard Accent Light|Device} turned off
 GetThingStateIntent if {Bedroom Ceiling Light|Device} is on
 GetThingStateIntent if {Living Room Shelf Lamp|Device} is on
 GetThingStateIntent is {Lamp|Device} off
