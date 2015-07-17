@@ -13,10 +13,29 @@ var API_HOST = "graph.api.smartthings.com";
 var API_ENDPOINT = "/api/smartapps/installations/116b66db-226c-4f7e-90e7-14b751688b65";
 var DB_ARN = "arn:aws:dynamodb:us-east-1:138291740905:table/STBridgeUserData";
 var http = require('https');
+var aws = require('aws-sdk');
+var crypto = require('crypto');
+var db = new aws.DynamoDB();
 
 exports.handler = function(event, context) {
+    db.listTables({}, function(err, data) {
+        if (err) console.error(err);
+        else {
+            console.log(data);
+            console.log(context.toString());
+            //console.log("Hash: " + crypto.createHash('md5').update(data).digest('hex'));
+            onNewSession(event, context);
+        }
+    });
+};
+
+/**
+ * Handle new session
+ */
+function onNewSession(event, context) {
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
+
         /**
          * Uncomment this if statement and populate with your skill's application ID to
          * prevent someone else from configuring a skill that sends requests to this function.
@@ -57,7 +76,7 @@ exports.handler = function(event, context) {
     catch (e) {
         context.fail("Exception: " + e);
     }
-};
+}
 
 /**
  * Called when the session starts.
@@ -160,9 +179,9 @@ function setSTDeviceState(intent, session, callback) {
 
     var intentDevice = intent.slots.Device.value;
     var intentState = intent.slots.State.value;
-    
-    console.log("Device: "+intentDevice);
-    console.log("State : "+intentState);
+
+    console.log("Device: " + intentDevice);
+    console.log("State : " + intentState);
 
 
     var optionsget = {
