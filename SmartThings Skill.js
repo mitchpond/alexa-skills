@@ -11,6 +11,7 @@ var CLIENT_SECRET = "840fa3db-91ff-436f-b476-ff7d969500a0";
 var API_TOKEN = "5be2014a-1bf8-4339-978b-48ee223eef5f";
 var API_HOST = "graph.api.smartthings.com";
 var API_ENDPOINT = "/api/smartapps/installations/116b66db-226c-4f7e-90e7-14b751688b65";
+var DB_ARN = "arn:aws:dynamodb:us-east-1:138291740905:table/STBridgeUserData";
 var http = require('https');
 
 exports.handler = function(event, context) {
@@ -95,7 +96,7 @@ function onIntent(intentRequest, session, callback) {
         helloBridgetResponse(callback);
     }
     else if ("GetThingStateIntent" === intentName) {
-        getDeviceStateResponse(intent, callback);
+        getDeviceState(intent, callback);
     }
     else {
         throw "Invalid intent";
@@ -123,7 +124,7 @@ function listSTDevices(callback) {
 
     var optionsget = {
         host: API_HOST,
-        path: API_ENDPOINT + '/getSwitches',
+        path: API_ENDPOINT + "/getSwitches",
         method: 'GET',
         port: 443,
         headers: {
@@ -145,13 +146,6 @@ function listSTDevices(callback) {
     req.on('error', function(e) {
         console.error(e);
     });
-
-    // If the user either does not reply to the welcome message or says something that is not
-    // understood, they will be prompted again with this text.
-    
-
-    //callback(sessionAttributes,
-    //         buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
 
 /**
@@ -164,24 +158,53 @@ function setSTDeviceState(intent, session, callback) {
     var shouldEndSession = true;
     var speechOutput = "";
 
-    speechOutput = "Once implemented, I will be able to control your SmartThings devices. This is a work in progress!";
+    var intentDevice = intent.slots.Device.value;
+    var intentState = intent.slots.State.value;
+    
+    console.log("Device: "+intentDevice);
+    console.log("State : "+intentState);
 
-    callback(sessionAttributes,
-        buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+
+    var optionsget = {
+        host: API_HOST,
+        path: API_ENDPOINT + "/switch/" + intentDevice + "/" + intentState,
+        method: 'GET',
+        port: 443,
+        headers: {
+            'Authorization': 'Bearer ' + API_TOKEN
+        }
+    };
+
+    var req = http.request(optionsget, function(response) {
+        console.log(response.statusCode + ':- Instance state response code.');
+        response.on('data', function(d) {
+            //var dev = JSON.parse(d.toString());
+            console.log(d);
+            if (d) speechOutput = "Sent " + intentState + " command to " + intentDevice;
+            else speechOutput = "Sorry, something went wrong when trying to set the state of " + intentDevice;
+            callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+        });
+    });
+    req.end();
+    req.on('error', function(e) {
+        console.error(e);
+        speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
+        callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+    });
 }
 
 /* Using to test communication with Lambda. If this one works while the others don't, 
 then there's probably an issue with the other intents */
 function helloBridgetResponse(callback) {
     var girlfriend = "Bridget";
-    var speechOutput = "Hello "+girlfriend+"! How are you today?";
+    var speechOutput = "Hello " + girlfriend + "! How are you today?";
     var repromptText = "I'm glad to hear that!";
     var shouldEndSession = true;
 
     callback({}, buildSpeechletResponse("Greetings Bridget!", speechOutput, repromptText, shouldEndSession));
 }
 
-function getDeviceStateResponse(intent, callback) {
+function getDeviceState(intent, callback) {
     var cardTitle = intent.name;
     var speechOutput = "";
     var sessionAttributes = {};
@@ -205,7 +228,7 @@ function getDeviceStateResponse(intent, callback) {
         response.on('data', function(d) {
             var dev = JSON.parse(d.toString());
             console.log(dev);
-            if (dev.state.length > 0) speechOutput += "Currently, " + dev.name + " is " + dev.state;
+            if (dev.state.length > 0) speechOutput = "Currently, " + dev.name + " is " + dev.state;
             else speechOutput += "Sorry, I couldn't find the device " + intentDevice + ".";
             callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
@@ -216,33 +239,6 @@ function getDeviceStateResponse(intent, callback) {
         speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
         callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
     });
-}
-
-function getColorFromSession(intent, session, callback) {
-    var cardTitle = intent.name;
-    var favoriteColor;
-    var repromptText = null;
-    var sessionAttributes = {};
-    var shouldEndSession = false;
-    var speechOutput = "";
-
-    if (session.attributes) {
-        favoriteColor = session.attributes.favoriteColor;
-    }
-
-    if (favoriteColor) {
-        speechOutput = "Your favorite color is " + favoriteColor + ", goodbye";
-        shouldEndSession = true;
-    }
-    else {
-        speechOutput = "I'm not sure what your favorite color is, you can say, my favorite color " + " is red";
-    }
-
-    // Setting repromptText to null signifies that we do not want to reprompt the user.
-    // If the user does not respond or says something that is not understood, the session
-    // will end.
-    callback(sessionAttributes,
-        buildSpeechletResponse(intent.name, speechOutput, repromptText, shouldEndSession));
 }
 
 // --------------- Helpers that build all of the responses -----------------------
@@ -275,3 +271,9 @@ function buildResponse(sessionAttributes, speechletResponse) {
         response: speechletResponse
     };
 }
+
+// =============================================================================
+
+// Retrieve the user's API token and endpoint from the database
+// Initiate OAuth process if this is a new user
+function getUserCredentials() {}
