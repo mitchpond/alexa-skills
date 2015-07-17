@@ -18,6 +18,15 @@ var crypto = require('crypto');
 var db = new aws.DynamoDB();
 
 exports.handler = function(event, context) {
+    /**
+     * Uncomment this if statement and populate with your skill's application ID to
+     * prevent someone else from configuring a skill that sends requests to this function.
+     */
+
+    if (event.session.application.applicationId !== "amzn1.echo-sdk-ams.app.42d34e9a-b984-4e0d-a09d-419d4a7a85b9") {
+        context.fail("Invalid Application ID");
+    }
+
     db.listTables({}, function(err, data) {
         if (err) console.error(err);
         else {
@@ -35,17 +44,6 @@ exports.handler = function(event, context) {
 function onNewSession(event, context) {
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
-
-        /**
-         * Uncomment this if statement and populate with your skill's application ID to
-         * prevent someone else from configuring a skill that sends requests to this function.
-         */
-        /*
-        if (event.session.application.applicationId !== "amzn1.echo-sdk-ams.app.[unique-value-here]") {
-             context.fail("Invalid Application ID");
-         }
-        */
-
 
         if (event.session.new) {
             onSessionStarted({
