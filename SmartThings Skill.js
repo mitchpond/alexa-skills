@@ -26,12 +26,20 @@ exports.handler = function(event, context) {
     if (event.session.application.applicationId !== "amzn1.echo-sdk-ams.app.42d34e9a-b984-4e0d-a09d-419d4a7a85b9") {
         context.fail("Invalid Application ID");
     }
-
-    db.listTables({}, function(err, data) {
+    
+    var uid = event.session.user.userId ? event.session.user.userId : 'testUser';
+    console.log('Looking up data for uid: ' + uid);
+    db.getItem({
+        "Key": {
+            "UserID": {
+                "S": uid
+            }
+        },
+        "TableName": "STBridgeUserData"
+    }, function(err, data) {
         if (err) console.error(err);
         else {
             console.log(data);
-            console.log(context.toString());
             //console.log("Hash: " + crypto.createHash('md5').update(data).digest('hex'));
             onNewSession(event, context);
         }
@@ -184,7 +192,7 @@ function setSTDeviceState(intent, session, callback) {
 
     var optionsget = {
         host: API_HOST,
-        path: API_ENDPOINT + "/switch/" + intentDevice + "/" + intentState,
+        path: API_ENDPOINT + "/switch/" + encodeURIComponent(intentDevice) + "/" + encodeURIComponent(intentState),
         method: 'GET',
         port: 443,
         headers: {
@@ -193,21 +201,24 @@ function setSTDeviceState(intent, session, callback) {
     };
 
     var req = http.request(optionsget, function(response) {
-        console.log(response.statusCode + ':- Instance state response code.');
+        console.log('HTTPS request result: Code: ' + response.statusCode + ' Message: ' + response.statusMessage);
         response.on('data', function(d) {
-            //var dev = JSON.parse(d.toString());
-            console.log(d);
             if (d) speechOutput = "Sent " + intentState + " command to " + intentDevice;
             else speechOutput = "Sorry, something went wrong when trying to set the state of " + intentDevice;
             callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
+        response.on('error', function(e) {
+            console.error('Returned error value (inner method): ' + e);
+            speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
+            callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+        })
     });
-    req.end();
     req.on('error', function(e) {
-        console.error(e);
+        console.error('Returned error value (outer method): ' + e);
         speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
         callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
     });
+    req.end();
 }
 
 /* Using to test communication with Lambda. If this one works while the others don't, 
@@ -246,7 +257,7 @@ function getDeviceState(intent, callback) {
             var dev = JSON.parse(d.toString());
             console.log(dev);
             if (dev.state.length > 0) speechOutput = "Currently, " + dev.name + " is " + dev.state;
-            else speechOutput += "Sorry, I couldn't find the device " + intentDevice + ".";
+            else speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
             callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
     });
@@ -293,4 +304,4 @@ function buildResponse(sessionAttributes, speechletResponse) {
 
 // Retrieve the user's API token and endpoint from the database
 // Initiate OAuth process if this is a new user
-function getUserCredentials() {}
+function getUserCredentials(user, callback) {}

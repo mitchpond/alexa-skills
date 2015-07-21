@@ -26,6 +26,12 @@ GetThingStateIntent is the {Upstairs Hallway Ceiling Light|Device} turned on
 GetThingStateIntent is the {Entryway Baseboard Accent Light|Device} turned off
 GetThingStateIntent if {Bedroom Ceiling Light|Device} is on
 GetThingStateIntent if {Living Room Shelf Lamp|Device} is on
+GetThingStateIntent if {Living Room Shelf Lamp|Device} are on
+GetThingStateIntent if {Christmas Lights|Device} are on
+GetThingStateIntent if {Kitchen Fan Lights|Device} are on
+GetThingStateIntent if the {Kitchen Fan Lights|Device} are off
+GetThingStateIntent if the {Christmas Lights|Device} are off
+GetThingStateIntent if the {Living Room Shelf Lamp|Device} are off
 GetThingStateIntent is {Lamp|Device} off
 GetThingStateIntent if I left the {Kitchen Fan Lights|Device} on
 GetThingStateIntent if I left the {Front Door|Device} open
