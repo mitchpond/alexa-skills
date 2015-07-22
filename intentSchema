@@ -20,5 +20,14 @@
             "name": "Device",
             "type": "LITERAL"
         }]
+    }, {
+        "intent": "SetDimmerLevelIntent",
+        "slots": [{
+            "name": "Device",
+            "type": "LITERAL"
+        }, {
+            "name": "Level",
+            "type": "NUMBER"
+        }]
     }]
 }

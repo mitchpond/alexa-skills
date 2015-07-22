@@ -5,16 +5,27 @@ ListMyDevicesIntent what devices I can control
 ListMyDevicesIntent about my devices
 
 ChangeThingStateIntent set {Kitchen Fan Lights|Device} to {off|State}
-ChangeThingStateIntent set the {Kitchen Fan Lights|Device} to {off|State}
+ChangeThingStateIntent set {Chandelier|Device} to {off|State}
+ChangeThingStateIntent set the {Kitchen Fan Lights|Device} to {on|State}
+ChangeThingStateIntent set the {Desk Lamp|Device} to {off|State}
+ChangeThingStateIntent set the {Sconce|Device} to {on|State}
 ChangeThingStateIntent turn {Table Lamp|Device} {on|State}
-ChangeThingStateIntent turn the {Table Lamp|Device} {on|State}
-ChangeThingStateIntent turn the {Lights|Device} {off|State}
+ChangeThingStateIntent turn {Kitchen Fan Lights|Device} {on|State}
+ChangeThingStateIntent turn {Basement Stairs Overhead Lights|Device} {on|State}
 ChangeThingStateIntent turn {Table Lamp|Device} {off|State}
 ChangeThingStateIntent turn {Lamp|Device} {off|State}
 ChangeThingStateIntent turn {Lamp|Device} {on|State}
+ChangeThingStateIntent turn the {Basement Stairs Overhead Lights|Device} {on|State}
+ChangeThingStateIntent turn the {Table Lamp|Device} {on|State}
+ChangeThingStateIntent turn the {Lights|Device} {off|State}
+ChangeThingStateIntent turn the {Bedroom Ceiling Light|Device} {off|State}
 ChangeThingStateIntent turn {on|State} {Lamp|Device}
 ChangeThingStateIntent turn {off|State} {Lamp|Device}
 ChangeThingStateIntent turn {off|State} the {Lamp|Device}
+ChangeThingStateIntent turn {on|State} the {Kitchen Fan Lights|Device}
+ChangeThingStateIntent turn {on|State} the {Bedroom Ceiling Light|Device}
+ChangeThingStateIntent turn {on|State} the {Upstairs Bathroom Vanity Lights|Device}
+ChangeThingStateIntent turn {off|State} the {Upstairs Bathroom Vanity Lights|Device}
 
 GetThingStateIntent is {Kitchen Fan Lights|Device} on
 GetThingStateIntent are the {Kitchen Fan Lights|Device} on
@@ -50,4 +61,11 @@ GetThingStateIntent if the {Front Door|Device} is open
 GetThingStateIntent is the {Back Door|Device} open
 GetThingStateIntent is the {Back Door|Device} closed
 
-HelloBridgetIntent say hello to Bridget
+SetDimmerLevelIntent set {Lamp|Device} to {fifty|Level} percent
+SetDimmerLevelIntent set {Porch Lights|Device} to {twenty three|Level} percent
+SetDimmerLevelIntent set {Bedroom Wall Sconce|Device} to {eighty one|Level}
+SetDimmerLevelIntent set {Upstairs Hallway Recessed Can Light|Device} to {five|Level}
+SetDimmerLevelIntent dim {Accent Lighting|Device} to {forty nine|Level} percent
+SetDimmerLevelIntent dim {Kitchen Fan Lights|Device} to {ten|Level} percent
+SetDimmerLevelIntent dim {Basement Laundry Room Overhead Light|Device} to {sixteen|Level}
+SetDimmerLevelIntent dim {Desk Lamp|Device} to {ninety five|Level}
