@@ -10,7 +10,9 @@ var CLIENT_ID = "396680e2-fe30-4a8d-8eab-9bbed5b68907";
 var CLIENT_SECRET = "840fa3db-91ff-436f-b476-ff7d969500a0";
 var API_TOKEN = "5be2014a-1bf8-4339-978b-48ee223eef5f";
 var API_HOST = "graph.api.smartthings.com";
-var API_ENDPOINT = "/api/smartapps/installations/116b66db-226c-4f7e-90e7-14b751688b65";
+var API_ENDPOINT = "/api/smartapps/installations/178deac3-0d9e-4d66-8a30-b1070aa7ae35";
+var ST_ENDPOINTS_URL = 'https://graph.api.smartthings.com/api/smartapps/endpoints';
+var LAMBDA_CALLBACK_URL = 'https://n9cw7wvmig.execute-api.us-east-1.amazonaws.com/prod/STBridge';
 var DB_ARN = "arn:aws:dynamodb:us-east-1:138291740905:table/STBridgeUserData";
 var http = require('https');
 var aws = require('aws-sdk');
@@ -29,7 +31,7 @@ exports.handler = function(event, context) {
         }
 
         //test encryption
-        var cryptedToken = encryptString(API_TOKEN);
+        //var cryptedToken = encryptString(API_TOKEN);
 
         var uid = event.session.user.userId ? event.session.user.userId : 'testUser'; //TODO: remove before publishing
         console.log('Looking up data for uid: ' + uid);
@@ -41,16 +43,21 @@ exports.handler = function(event, context) {
             },
             "TableName": "STBridgeUserData"
         }, function(err, data) {
-            if (err) console.error(err);
-            else {
+            if (err) console.error('Database error: ' + err);
+            else if (data.Item) {
                 console.log(data);
-                //console.log("Hash: " + crypto.createHash('md5').update(data).digest('hex'));
                 onNewSession(event, context);
             }
+            else {
+                console.log('Could not find userId in database. Need to perform new user setup.');
+                /*do OAuth, create new DB entry, etc.*/
+                throw "NoSuchUserException";
+            }
+
         });
     }
     catch (e) {
-        console.error(e);
+        console.error("An exception occurred: "+e);
     }
 };
 
@@ -84,7 +91,7 @@ function onNewSession(event, context) {
         }
         else if (event.request.type === "SessionEndedRequest") {
             onSessionEnded(event.request, event.session);
-            context.succeed();
+            context.succeed("Session Completed");
         }
     }
     catch (e) {
@@ -132,7 +139,7 @@ function onIntent(intentRequest, session, callback) {
         setDimmerLevel(intent, session, callback);
     }
     else {
-        throw "Invalid intent";
+        throw "Invalid intent: " + intent;
     }
 }
 
@@ -157,7 +164,7 @@ function listSTDevices(callback) {
 
     var optionsget = {
         host: API_HOST,
-        path: API_ENDPOINT + "/getSwitches",
+        path: API_ENDPOINT + "/devices",
         method: 'GET',
         port: 443,
         headers: {
@@ -168,7 +175,7 @@ function listSTDevices(callback) {
     var req = http.request(optionsget, function(response) {
         console.log(response.statusCode + ':- Instance state response code.');
         response.on('data', function(d) {
-            speechOutput = "Available SmartThings devices that I can control are: ";
+            speechOutput = "These SmartThings devices are available to me: ";
             JSON.parse(d.toString()).forEach(function(entry) {
                 speechOutput += entry.name + ", ";
             });
@@ -200,28 +207,38 @@ function setSTDeviceState(intent, session, callback) {
 
     var optionsget = {
         host: API_HOST,
-        path: API_ENDPOINT + "/switch/" + encodeURIComponent(intentDevice) + "/" + encodeURIComponent(intentState),
-        method: 'GET',
+        path: API_ENDPOINT + "/devices/updateDevice",
+        method: 'PUT',
         port: 443,
         headers: {
-            'Authorization': 'Bearer ' + API_TOKEN
+            'Authorization': 'Bearer ' + API_TOKEN,
+            'Content-Type': '*/*'
         }
     };
 
     var req = http.request(optionsget, function(response) {
-        console.log('HTTPS request result: Code: ' + response.statusCode + ' Message: ' + response.statusMessage);
+        console.log('HTTPS request result: Code: ' + response.statusCode);
+        var httpsResponse = '';
+
         response.on('data', function(d) {
-            console.log(d);
-            if (d) speechOutput = "Sent " + intentState + " command to " + intentDevice;
-            else speechOutput = "Sorry, something went wrong when trying to set the state of " + intentDevice;
-            callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+            httpsResponse += d;
         });
-        response.on('error', function(e) {
-            console.error('Returned error value (inner method): ' + e);
-            speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
+
+        response.on('end', function() {
+            console.log('HTTPS response: ' + httpsResponse);
+            //Error condition
+            if (response.statusCode != 200) {
+                speechOutput = "Sorry, something went wrong when trying to set the state of " + intentDevice;
+                console.error(speechOutput + ': ' + httpsResponse);
+            }
+            //Success condition
+            else {
+                speechOutput = "Sent " + intentState + " command to " + intentDevice;
+            }
             callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
     });
+    req.write(JSON.stringify({"device": intentDevice, "command": intentState}));
     req.on('error', function(e) {
         console.error('Returned error value (outer method): ' + e);
         speechOutput = "Sorry, I couldn't find the device " + intentDevice + ".";
@@ -308,6 +325,7 @@ function getDeviceState(intent, callback) {
             callback(sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
     });
+    
     req.end();
     req.on('error', function(e) {
         console.error(e);
@@ -319,6 +337,7 @@ function getDeviceState(intent, callback) {
 // --------------- Helpers that build all of the responses -----------------------
 
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
+    console.log('Building speechlet response...');
     return {
         outputSpeech: {
             type: "PlainText",
@@ -326,8 +345,8 @@ function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
         },
         card: {
             type: "Simple",
-            title: "SessionSpeechlet - " + title,
-            content: "SessionSpeechlet - " + output
+            title: title,
+            content: output
         },
         reprompt: {
             outputSpeech: {
@@ -340,6 +359,7 @@ function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
 }
 
 function buildResponse(sessionAttributes, speechletResponse) {
+    console.log('Building response...');
     return {
         version: "1.0",
         sessionAttributes: sessionAttributes,
@@ -353,6 +373,10 @@ function buildResponse(sessionAttributes, speechletResponse) {
 // Initiate OAuth process if this is a new user
 function getUserCredentials(user, callback) {
 
+}
+
+function doOAuthHandshake(callback){
+    
 }
 
 function encryptString(string) {

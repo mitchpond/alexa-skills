@@ -20,6 +20,12 @@ ChangeThingStateIntent turn the {Table Lamp|Device} {on|State}
 ChangeThingStateIntent turn the {Lights|Device} {off|State}
 ChangeThingStateIntent turn the {Bedroom Ceiling Light|Device} {off|State}
 ChangeThingStateIntent turn {on|State} {Lamp|Device}
+ChangeThingStateIntent turn {on|State} {Desk Lamp|Device}
+ChangeThingStateIntent turn {on|State} {Front Porch Light|Device}
+ChangeThingStateIntent turn {on|State} {Overhead Laundry Room Light|Device}
+ChangeThingStateIntent turn {off|State} {Desk Lamp|Device}
+ChangeThingStateIntent turn {off|State} {Front Porch Light|Device}
+ChangeThingStateIntent turn {off|State} {Overhead Laundry Room Light|Device}
 ChangeThingStateIntent turn {off|State} {Lamp|Device}
 ChangeThingStateIntent turn {off|State} the {Lamp|Device}
 ChangeThingStateIntent turn {on|State} the {Kitchen Fan Lights|Device}

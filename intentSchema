@@ -12,9 +12,6 @@
             "type": "LITERAL"
         }]
     }, {
-        "intent": "HelloBridgetIntent",
-        "slots": []
-    }, {
         "intent": "GetThingStateIntent",
         "slots": [{
             "name": "Device",
